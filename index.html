@@ -1,47 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Person of the Day</title>
-    <style>
-        body {
-            text-align: center;
-            background-color: #f2f2f2;
-            font-family: Arial, sans-serif;
-            padding-top: 50px;
-        }
-        h1 {
-            font-size: 40px;
-            color: #333;
-        }
-        img {
-            max-width: 80%;
-            height: auto;
-            margin-top: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Person Race Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      font-family: 'Poppins', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+      user-select: none;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: 2rem;
+      text-shadow: 0 0 10px #000;
+    }
+
+    #gameArea {
+      position: relative;
+      width: 90vw;
+      max-width: 900px;
+      height: 300px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      margin: 30px 0;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+      overflow: hidden;
+    }
+
+    .player {
+      position: absolute;
+      bottom: 20px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      box-shadow: 0 0 20px rgba(255,255,255,0.8);
+      background-size: cover;
+      background-position: center;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .player1 {
+      bottom: 70px;
+      border-color: #ff4d4d;
+      box-shadow: 0 0 30px #ff4d4d;
+    }
+
+    .player2 {
+      bottom: 70px;
+      border-color: #4d94ff;
+      box-shadow: 0 0 30px #4d94ff;
+    }
+
+    #status {
+      font-size: 1.2rem;
+      margin-top: 10px;
+      min-height: 28px;
+      font-weight: 600;
+      text-shadow: 0 0 5px #000;
+    }
+
+    /* Finish line */
+    #finishLine {
+      position: absolute;
+      right: 50px;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      background: repeating-linear-gradient(
+        45deg,
+        #fff,
+        #fff 10px,
+        #000 10px,
+        #000 20px
+      );
+      box-shadow: 0 0 10px #fff;
+    }
+
+    /* Controls legend */
+    #controls {
+      font-size: 0.9rem;
+      color: #ddd;
+      margin-bottom: 20px;
+      user-select: none;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
 
-    <h1>👑 Person of the Day 👑</h1>
-    <img id="randomImage" src="" alt="Person of the Day">
+  <h1>👑 Person Race Game 👑</h1>
+  <div id="controls">
+    Player 1: Arrow Keys &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; Player 2: WASD
+  </div>
 
-    <script>
-        // Add your image filenames here
-       const images = [
- 
-    "https://media.licdn.com/dms/image/v2/D5603AQF2Mxo__hFuTg/profile-displayphoto-crop_800_800/B56ZfQ6OpZGoAM-/0/1751556616198?e=1756339200&v=beta&t=aaUQKnSfBrEq41ob6ob-73v1QikQhEjUCF97WKgPdII"
-];
+  <div id="gameArea">
+    <div id="finishLine"></div>
+    <div id="player1" class="player player1"></div>
+    <div id="player2" class="player player2"></div>
+  </div>
 
-        // Select a random image
-        const randomIndex = Math.floor(Math.random() * images.length);
-        const selectedImage = images[randomIndex];
+  <div id="status"></div>
 
-        // Set the image source
-        document.getElementById("randomImage").src = selectedImage;
-    </script>
+  <script>
+    // Player images and names
+    const players = [
+      {
+        name: "Jake",
+        img: "https://media.licdn.com/dms/image/v2/D5603AQF2Mxo__hFuTg/profile-displayphoto-crop_800_800/B56ZfQ6OpZGoAM-/0/1751556616198?e=1756339200&v=beta&t=aaUQKnSfBrEq41ob6ob-73v1QikQhEjUCF97WKgPdII"
+      },
+      {
+        name: "Josh",
+        img: "https://media.licdn.com/dms/image/v2/C4D03AQHSMPD32qcL-Q/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1594858007083?e=1756339200&v=beta&t=NIgiF2IyBWQ-qd_ou059jr9E3sPk7-qD3s3wDQBU6xg"
+      }
+    ];
 
+    // Elements
+    const player1El = document.getElementById('player1');
+    const player2El = document.getElementById('player2');
+    const statusEl = document.getElementById('status');
+    const gameArea = document.getElementById('gameArea');
+
+    // Assign images to players
+    player1El.style.backgroundImage = `url(${players[0].img})`;
+    player2El.style.backgroundImage = `url(${players[1].img})`;
+
+    // Position variables
+    let player1Pos = 20; // px from left
+    let player2Pos = 20;
+    const step = 15; // move per key press
+    const finishLineX = gameArea.clientWidth - 50 - player1El.clientWidth; // Finish line pos from left
+
+    // Randomize who goes first: that player starts 50px ahead
+    const firstPlayerIndex = Math.floor(Math.random() * 2);
+    if (firstPlayerIndex === 0) {
+      player1Pos += 50;
+      statusEl.textContent = `${players[0].name} goes first!`;
+    } else {
+      player2Pos += 50;
+      statusEl.textContent = `${players[1].name} goes first!`;
+    }
+    updatePositions();
+
+    // Move and update player positions
+    function updatePositions() {
+      player1El.style.left = player1Pos + 'px';
+      player2El.style.left = player2Pos + 'px';
+    }
+
+    // Check if someone won
+    function checkWin() {
+      if (player1Pos >= finishLineX) {
+        statusEl.textContent = `${players[0].name} wins! 🎉`;
+        gameOver = true;
+      } else if (player2Pos >= finishLineX) {
+        statusEl.textContent = `${players[1].name} wins! 🎉`;
+        gameOver = true;
+      }
+    }
+
+    // Game state
+    let gameOver = false;
+
+    // Key controls
+    window.addEventListener('keydown', e => {
+      if(gameOver) return; // stop moving after win
+
+      switch(e.key) {
+        // Player 1 arrow keys
+        case 'ArrowRight':
+          player1Pos = Math.min(player1Pos + step, finishLineX);
+          break;
+        case 'ArrowLeft':
+          player1Pos = Math.max(player1Pos - step, 0);
+          break;
+        case 'ArrowUp':
+          // Optionally, add vertical movement here
+          break;
+        case 'ArrowDown':
+          // Optionally, add vertical movement here
+          break;
+
+        // Player 2 WASD keys
+        case 'd':
+        case 'D':
+          player2Pos = Math.min(player2Pos + step, finishLineX);
+          break;
+        case 'a':
+        case 'A':
+          player2Pos = Math.max(player2Pos - step, 0);
+          break;
+        case 'w':
+        case 'W':
+          // Optionally vertical movement
+          break;
+        case 's':
+        case 'S':
+          // Optionally vertical movement
+          break;
+      }
+
+      updatePositions();
+      checkWin();
+    });
+  </script>
 </body>
 </html>
