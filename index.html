@@ -139,15 +139,8 @@
     const step = 15; // move per key press
     const finishLineX = gameArea.clientWidth - 50 - player1El.clientWidth; // Finish line pos from left
 
-    // Randomize who goes first: that player starts 50px ahead
-    const firstPlayerIndex = Math.floor(Math.random() * 2);
-    if (firstPlayerIndex === 0) {
-      player1Pos += 50;
-      statusEl.textContent = `${players[0].name} goes first!`;
-    } else {
-      player2Pos += 50;
-      statusEl.textContent = `${players[1].name} goes first!`;
-    }
+    // Start message
+    statusEl.textContent = `Race starts! First to the finish line wins!`;
     updatePositions();
 
     // Move and update player positions
@@ -182,12 +175,6 @@
         case 'ArrowLeft':
           player1Pos = Math.max(player1Pos - step, 0);
           break;
-        case 'ArrowUp':
-          // Optionally, add vertical movement here
-          break;
-        case 'ArrowDown':
-          // Optionally, add vertical movement here
-          break;
 
         // Player 2 WASD keys
         case 'd':
@@ -198,14 +185,6 @@
         case 'A':
           player2Pos = Math.max(player2Pos - step, 0);
           break;
-        case 'w':
-        case 'W':
-          // Optionally vertical movement
-          break;
-        case 's':
-        case 'S':
-          // Optionally vertical movement
-          break;
       }
 
       updatePositions();
@@ -214,3 +193,4 @@
   </script>
 </body>
 </html>
+
